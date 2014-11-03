@@ -1,6 +1,8 @@
+# TODO: Refactor so it can be tested.
+
 from configure import Configuration
 from scriptparser import FileContainer
-from plotter import Plotter
+from filegraph import FileGraph
 import re
 import os
 
@@ -15,7 +17,7 @@ class ScriptParser(object):
         self._parsers = []
         self._parentDir = ""
         self._fileContainer = FileContainer()
-        self._graph = Plotter()
+        self._graph = FileGraph()
         self.setup()
         self.rootPath = ""
 
@@ -45,6 +47,11 @@ class ScriptParser(object):
             parser = re.compile(pattern)
             self._parsers.append(parser)
 
+        # add python parser
+        pattern = "python (.*)"
+        parser = re.compile(pattern)
+        self._parsers.append(parser)
+
     ## Parses a file
     #
     # @param self The object pointer.
@@ -71,8 +78,15 @@ class ScriptParser(object):
         for parser in self._parsers:
             if parser.search(line):
                 parsedFile = parser.search(line).group(0)
-                if parsedFile.find(" ") == -1:
-                    print "addingEdge:", callerFile, "->", os.path.abspath(self._parentDir + "/" + parsedFile)
-                    self._graph.add_edge(callerFile.replace(self.rootPath, ""), os.path.abspath(self._parentDir + "/" + parsedFile).replace(self.rootPath, ""))
-                    if not self._fileContainer.hasBeenParsed(os.path.abspath(self._parentDir + "/" + parsedFile)):
-                        self.parseFile(self._parentDir + "/" + parsedFile)
+                if parsedFile.find(" ") == -1 or parsedFile.find("python") != -1:
+                    pFile = parsedFile
+                    if pFile.find("python") != -1:
+                        pFile = pFile.replace("python", " ")
+                        pFile = pFile.strip()
+                        if pFile.find(" ") != -1:
+                            pFile = pFile[0:pFile.find(" ")]
+
+                    #print "addingEdge:", callerFile.replace(self.rootPath, ""), "->", os.path.abspath(self._parentDir + "/" + pFile).replace(self.rootPath, "")
+                    self._graph.add_edge(callerFile.replace(self.rootPath, ""), os.path.abspath(self._parentDir + "/" + pFile).replace(self.rootPath, ""))
+                    if not self._fileContainer.hasBeenParsed(os.path.abspath(self._parentDir + "/" + pFile)):
+                        self.parseFile(self._parentDir + "/" + pFile)
