@@ -13,12 +13,10 @@ if __name__ == "__main__":
     #sp.rootPath = "/home/oddur/PycharmProjects/ScriptPlotter/resources/"
     #sp.parseFile("resources/main_script.sh")
 
-    #sp.rootPath = ("/home/oddur/tool/")
-    #sp.parseFile("/home/oddur/tool/configure.csh")
+    sp.rootPath = ("/home/oddur/tool/")
+    sp.parseFile("/home/oddur/tool/configure.csh")
 
-    sp.rootPath= "/home/oddur/bsc/TOOL_ORIGINAL/"
-    sp.parseFile("/home/oddur/bsc/TOOL_ORIGINAL/configure.csh")
-
-
+    #sp.rootPath= "/home/oddur/bsc/TOOL_ORIGINAL/"
+    #sp.parseFile("/home/oddur/bsc/TOOL_ORIGINAL/configure.csh")
 
     Plotter.plotGraph(FileGraph().getGraph())
