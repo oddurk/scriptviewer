@@ -1,17 +1,13 @@
 from SingletonType import SingletonType
 ## Container for files which have been parsed
 # Singleton class for files
-class FileContainer(object):
+class FileStore(object):
     __metaclass__ = SingletonType
-    ## @var _filesParsed
-    # A set containing files which have been parsed
-    #
-
     ## The constructor
     #
     # @param self The object pointer.
     def __init__(self):
-        super(FileContainer, self).__init__()
+        super(FileStore, self).__init__()
         self._filesParsed = set()
 
     ## Adds a file to the file container

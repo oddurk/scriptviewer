@@ -1,5 +1,7 @@
 from SingletonType import SingletonType
-## Configuration for the adt.
+
+
+## Configuration
 # Container for all configuration used in the program.
 # This is a singleton class, which is accessible everywhere in the program.
 # The loader expects a file containing:\n
