@@ -1,26 +1,49 @@
 # TODO: Refactor so it can be tested.
 from configure import Configuration
-from scriptparser import FileStore
+from PySide import QtCore
 from filetree import FileGraph
 from filetree import FileContainer
+from scriptparser import FileStore
 import re
 import os
 
 ## The Script Parser class
 # Parses the given script
-class ScriptParser(object):
+class ScriptParser(QtCore.QObject):
+
+    fnf = QtCore.Signal((str,))
+
     ## The constructor
     #
     # @param self The object pointer.
     def __init__(self, rootfile):
+        super(ScriptParser, self).__init__()
         self._extensions = []
         self._parsers = []
         self._parentDir = ""
         self._fileContainer = FileStore()
+        self._graph = None
+        self._rootfile = rootfile
+        self._rootpath = self.rootpathfromfile(self._rootfile)
+
+
+    ## Setter for the root file.
+    #
+    # @param self The object pointer.
+    # @param rootfile The new root file to set the value to, as string.
+    def setrootfile(self, rootfile):
         self._graph = FileGraph(rootfile)
         self._rootfile = rootfile
-        self._rootPath = rootfile[::-1][0:rootfile[::-1].find("/")][::-1]
+        self._rootpath = self.rootpathfromfile(self._rootfile)
         self.setup()
+
+    ## Extracts the root path from a file folder name.
+    #
+    # @param self The object pointer.
+    # @param filename The filename to extract the root folder from.
+    # @return The root path.
+    def rootpathfromfile(self, filename):
+        return filename[::-1][0:filename[::-1].find("/")][::-1]
 
     ## Setup of the internal of the object.
     #
@@ -71,7 +94,8 @@ class ScriptParser(object):
                         self.parseLine(l.strip(), os.path.abspath(parsedFile), lineCount)
                 lineCount += 1
         except IOError:
-            print "File not found: ", parsedFile
+            err = "File not found: "+ parsedFile
+            self.fnf.emit(err)
 
     ## Parses a line
     #
@@ -88,8 +112,7 @@ class ScriptParser(object):
                         pFile = pFile.strip()
                         if pFile.find(" ") != -1:
                             pFile = pFile[0:pFile.find(" ")]
-                    print "addingEdge:", callerFile, "->", os.path.abspath(self._parentDir + "/" + pFile).replace(self._rootPath, "")
-                    self._graph.add_edge(FileContainer(callerFile), FileContainer(os.path.abspath(self._parentDir + "/" + pFile).replace(self._rootPath, "")), lineNumber)
+                    self._graph.add_edge(FileContainer(callerFile), FileContainer(os.path.abspath(self._parentDir + "/" + pFile).replace(self._rootpath, "")), lineNumber)
                     if not self._fileContainer.hasBeenParsed(os.path.abspath(self._parentDir + "/" + pFile)):
                         self.parseFile(self._parentDir + "/" + pFile)
 
